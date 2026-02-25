@@ -19,17 +19,22 @@ width:200%;
 height:200%;
 top:-50%;
 left:-50%;
+
 background:url("logo.png") repeat;
-background-size:220px;
-opacity:.05;
-z-index:-1;
-animation:moveBg 120s linear infinite;
+background-size:260px;
+
+opacity:.12; /* БЫЛО 0.05 */
+
+z-index:-2;
+
+animation:moveBg 140s linear infinite;
 }
 
 @keyframes moveBg{
 from{transform:translate(0,0);}
-to{transform:translate(800px,600px);}
+to{transform:translate(900px,700px);}
 }
+
 
 /* ===== Header ===== */
 
