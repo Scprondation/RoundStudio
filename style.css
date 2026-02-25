@@ -46,10 +46,20 @@ transition:transform .15s ease;
 }
 
 /* ===== HEADER ===== */
-
 .header{
 padding:30px 8%;
 }
+
+.logo{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo img{
+width:45px;
+}
+
 
 /* ===== HERO ===== */
 
