@@ -1,105 +1,167 @@
-/* ========= SMOOTH SCROLL ========= */
+/* ================= PRELOADER ================= */
 
-const lenis = new Lenis({
-duration:1.2,
-smooth:true
+window.addEventListener("load",()=>{
+setTimeout(()=>{
+document.getElementById("preloader")
+.classList.add("hide");
+},1500);
 });
+
+
+/* ================= SMOOTH SCROLL ================= */
+
+const lenis=new Lenis();
 
 function raf(time){
 lenis.raf(time);
 requestAnimationFrame(raf);
 }
-
 requestAnimationFrame(raf);
 
 
-/* ========= CURSOR ========= */
+/* ================= WEBGL BACKGROUND ================= */
 
-const cursor=document.querySelector(".cursor");
+const canvas=document.querySelector("#webgl");
 
-document.addEventListener("mousemove",e=>{
-cursor.style.left=e.clientX+"px";
-cursor.style.top=e.clientY+"px";
+const scene=new THREE.Scene();
+
+const camera=new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+camera.position.z=5;
+
+const renderer=new THREE.WebGLRenderer({
+canvas,
+alpha:true
+});
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+
+/* ===== FLOATING RS OBJECT ===== */
+
+const geometry=new THREE.TorusKnotGeometry(1,0.3,200,32);
+const material=new THREE.MeshStandardMaterial({
+color:0x8cffb3,
+metalness:.8,
+roughness:.2
+});
+
+const mesh=new THREE.Mesh(geometry,material);
+scene.add(mesh);
+
+/* lights */
+
+const light=new THREE.PointLight(0xffffff,2);
+light.position.set(5,5,5);
+scene.add(light);
+
+
+/* ===== CAMERA MOVEMENT ===== */
+
+document.addEventListener("mousemove",(e)=>{
+
+const x=(e.clientX/window.innerWidth-.5)*2;
+const y=(e.clientY/window.innerHeight-.5)*2;
+
+camera.position.x=x*1.5;
+camera.position.y=-y*1.5;
+
 });
 
 
-/* ========= MAGNETIC BUTTON ========= */
+/* ===== ANIMATE ===== */
 
-document.querySelectorAll(".magnetic")
-.forEach(btn=>{
+function animate(){
 
-btn.addEventListener("mousemove",e=>{
+mesh.rotation.x+=0.002;
+mesh.rotation.y+=0.003;
 
-const rect=btn.getBoundingClientRect();
+renderer.render(scene,camera);
 
-const x=e.clientX-rect.left-rect.width/2;
-const y=e.clientY-rect.top-rect.height/2;
+requestAnimationFrame(animate);
+}
 
-btn.style.transform=`translate(${x*0.3}px,${y*0.3}px)`;
+animate();
+
+
+/* ================= SPA NAVIGATION ================= */
+
+const view=document.getElementById("view");
+
+const pages={
+
+home:`
+<div class="page active">
+<h1>We Create Digital Experiences</h1>
+<p>Studio level interaction design</p>
+</div>
+`,
+
+projects:`<div class="page active">
+<h1>Projects</h1>
+<div id="projects" class="grid"></div>
+</div>`
+};
+
+function loadPage(name){
+
+view.innerHTML=pages[name];
+
+if(name==="projects"){
+loadProjects();
+}
+
+}
+
+document.querySelectorAll("nav a")
+.forEach(link=>{
+link.onclick=()=>loadPage(link.dataset.page);
 });
 
-btn.addEventListener("mouseleave",()=>{
-btn.style.transform="translate(0,0)";
-});
 
-});
+/* ================= PROJECTS LOAD ================= */
 
-
-/* ========= SCROLL REVEAL ========= */
-
-const observer=new IntersectionObserver(entries=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting)
-entry.target.classList.add("visible");
-});
-});
-
-document.querySelectorAll(".reveal")
-.forEach(el=>observer.observe(el));
-
-
-/* ========= LOAD PROJECTS ========= */
-
-const container=document.getElementById("projects");
+function loadProjects(){
 
 fetch("./projects.json")
 .then(r=>r.json())
-.then(projects=>{
+.then(data=>{
 
-projects.forEach(p=>{
+const container=document.getElementById("projects");
+
+data.forEach(p=>{
 
 const card=document.createElement("div");
-card.className="card reveal";
+card.className="card";
 
 card.innerHTML=`
 <img src="${p.image}">
-<div class="card-content">
 <h3>${p.title}</h3>
-</div>
 `;
 
-card.onclick=()=>openViewer(p);
-
 container.appendChild(card);
-observer.observe(card);
 
 });
 
 });
-
-
-/* ========= VIEWER ========= */
-
-const viewer=document.getElementById("viewer");
-const vimg=document.getElementById("viewer-img");
-const vtitle=document.getElementById("viewer-title");
-
-function openViewer(p){
-viewer.classList.add("active");
-vimg.src=p.image;
-vtitle.innerText=p.title;
 }
 
-document.getElementById("close").onclick=()=>{
-viewer.classList.remove("active");
-};
+/* default page */
+loadPage("home");
+
+
+/* ================= RESIZE ================= */
+
+window.addEventListener("resize",()=>{
+
+camera.aspect=window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+
+renderer.setSize(window.innerWidth,window.innerHeight);
+
+});
