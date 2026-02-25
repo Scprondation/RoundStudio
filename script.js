@@ -2,7 +2,7 @@ const container = document.getElementById("projects");
 
 /* ==== Без падений если JSON не загрузился ==== */
 
-fetch("projects.json")
+fetch("project.json")
 .then(response => {
 if(!response.ok){
 throw new Error("JSON not found");
