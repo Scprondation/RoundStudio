@@ -1,51 +1,84 @@
-/* ================= CURSOR ================= */
+/* ========= SMOOTH SCROLL ========= */
 
-const cursor = document.querySelector(".cursor");
+const lenis = new Lenis({
+duration:1.2,
+smooth:true
+});
 
-document.addEventListener("mousemove", e => {
-cursor.style.left = e.clientX + "px";
-cursor.style.top = e.clientY + "px";
+function raf(time){
+lenis.raf(time);
+requestAnimationFrame(raf);
+}
+
+requestAnimationFrame(raf);
+
+
+/* ========= CURSOR ========= */
+
+const cursor=document.querySelector(".cursor");
+
+document.addEventListener("mousemove",e=>{
+cursor.style.left=e.clientX+"px";
+cursor.style.top=e.clientY+"px";
 });
 
 
-/* ================= SCROLL REVEAL ================= */
+/* ========= MAGNETIC BUTTON ========= */
 
-const observer = new IntersectionObserver(entries => {
-entries.forEach(entry => {
-if(entry.isIntersecting){
+document.querySelectorAll(".magnetic")
+.forEach(btn=>{
+
+btn.addEventListener("mousemove",e=>{
+
+const rect=btn.getBoundingClientRect();
+
+const x=e.clientX-rect.left-rect.width/2;
+const y=e.clientY-rect.top-rect.height/2;
+
+btn.style.transform=`translate(${x*0.3}px,${y*0.3}px)`;
+});
+
+btn.addEventListener("mouseleave",()=>{
+btn.style.transform="translate(0,0)";
+});
+
+});
+
+
+/* ========= SCROLL REVEAL ========= */
+
+const observer=new IntersectionObserver(entries=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting)
 entry.target.classList.add("visible");
-}
 });
 });
 
 document.querySelectorAll(".reveal")
-.forEach(el => observer.observe(el));
+.forEach(el=>observer.observe(el));
 
 
-/* ================= LOAD PROJECTS ================= */
+/* ========= LOAD PROJECTS ========= */
 
-const container = document.getElementById("projects");
+const container=document.getElementById("projects");
 
 fetch("./projects.json")
-.then(res => res.json())
-.then(projects => {
+.then(r=>r.json())
+.then(projects=>{
 
-projects.forEach(project => {
+projects.forEach(p=>{
 
-const card = document.createElement("div");
-card.className = "card reveal";
+const card=document.createElement("div");
+card.className="card reveal";
 
-card.innerHTML = `
-<img src="${project.image}">
+card.innerHTML=`
+<img src="${p.image}">
 <div class="card-content">
-<h3>${project.title}</h3>
+<h3>${p.title}</h3>
 </div>
 `;
 
-card.onclick = () => openViewer(project);
-
-card.addEventListener("mousemove", tilt);
-card.addEventListener("mouseleave", reset);
+card.onclick=()=>openViewer(p);
 
 container.appendChild(card);
 observer.observe(card);
@@ -55,40 +88,18 @@ observer.observe(card);
 });
 
 
-/* ================= 3D HOVER ================= */
+/* ========= VIEWER ========= */
 
-function tilt(e){
+const viewer=document.getElementById("viewer");
+const vimg=document.getElementById("viewer-img");
+const vtitle=document.getElementById("viewer-title");
 
-const card = e.currentTarget;
-const rect = card.getBoundingClientRect();
-
-const x = e.clientX - rect.left;
-const y = e.clientY - rect.top;
-
-const rotateX = -(y - rect.height/2) / 15;
-const rotateY = (x - rect.width/2) / 15;
-
-card.style.transform =
-`rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
-}
-
-function reset(e){
-e.currentTarget.style.transform="";
-}
-
-
-/* ================= VIEWER ================= */
-
-const viewer = document.getElementById("viewer");
-const viewerImg = document.getElementById("viewer-img");
-const viewerTitle = document.getElementById("viewer-title");
-
-function openViewer(project){
+function openViewer(p){
 viewer.classList.add("active");
-viewerImg.src = project.image;
-viewerTitle.innerText = project.title;
+vimg.src=p.image;
+vtitle.innerText=p.title;
 }
 
-document.getElementById("close").onclick = () => {
+document.getElementById("close").onclick=()=>{
 viewer.classList.remove("active");
 };
