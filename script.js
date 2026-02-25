@@ -16,8 +16,8 @@ console.warn("Using fallback projects");
 
 const fallback = [
 {
-title:"Studio Project",
-image:"https://picsum.photos/900/600?1"
+title:"25.02.2026 запуск студии",
+image:"https://raw.githubusercontent.com/Scprondation/RoundStudio/refs/heads/main/logo.png"
 }
 ];
 
